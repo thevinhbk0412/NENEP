@@ -1,0 +1,17 @@
+[
+  { "id": 1, "full_name": "Nguyễn Văn Nam", "class_id": 1, "class_name": "10A1" },
+  { "id": 2, "full_name": "Trần Thị Hoa", "class_id": 1, "class_name": "10A1" },
+  { "id": 3, "full_name": "Lê Văn Hùng", "class_id": 1, "class_name": "10A1" },
+  { "id": 4, "full_name": "Phạm Minh Tuấn", "class_id": 1, "class_name": "10A1" },
+  { "id": 5, "full_name": "Hoàng Thị Lan", "class_id": 2, "class_name": "10A2" },
+  { "id": 6, "full_name": "Đặng Văn Khoa", "class_id": 2, "class_name": "10A2" },
+  { "id": 7, "full_name": "Vũ Thị Mai", "class_id": 2, "class_name": "10A2" },
+  { "id": 8, "full_name": "Bùi Văn Dũng", "class_id": 3, "class_name": "11B1" },
+  { "id": 9, "full_name": "Ngô Thị Tuyết", "class_id": 3, "class_name": "11B1" },
+  { "id": 10, "full_name": "Lý Văn Thắng", "class_id": 4, "class_name": "11B2" },
+  { "id": 11, "full_name": "Đỗ Thị Diệp", "class_id": 4, "class_name": "11B2" },
+  { "id": 12, "full_name": "Trịnh Văn Long", "class_id": 5, "class_name": "12C1" },
+  { "id": 13, "full_name": "Phan Thị Ngọc", "class_id": 5, "class_name": "12C1" },
+  { "id": 14, "full_name": "Đoàn Văn Sơn", "class_id": 6, "class_name": "12C2" },
+  { "id": 15, "full_name": "Mai Thị Cúc", "class_id": 6, "class_name": "12C2" }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "student_id": 1,
+    "student_name": "Nguyễn Văn Nam",
+    "rule_id": 1,
+    "rule_code": "CC01",
+    "rule_description": "Đi học muộn",
+    "points": -5,
+    "severity": "Nhẹ",
+    "category_name": "Chuyên cần",
+    "recorder_id": 1,
+    "recorder_name": "Ban Giám Hiệu",
+    "note": "Ghi nhận tự động",
+    "created_at": "2026-03-01T08:00:00Z"
+  },
+  {
+    "id": 2,
+    "student_id": 2,
+    "student_name": "Trần Thị Hoa",
+    "rule_id": 7,
+    "rule_code": "HT01",
+    "rule_description": "Phát biểu xây dựng bài",
+    "points": 2,
+    "severity": "Khen thưởng",
+    "category_name": "Học tập",
+    "recorder_id": 2,
+    "recorder_name": "Nguyễn Văn An",
+    "note": "Hăng hái trong giờ Toán",
+    "created_at": "2026-03-01T09:30:00Z"
+  },
+  {
+    "id": 3,
+    "student_id": 5,
+    "student_name": "Hoàng Thị Lan",
+    "rule_id": 4,
+    "rule_code": "DP01",
+    "rule_description": "Sai đồng phục",
+    "points": -3,
+    "severity": "Nhẹ",
+    "category_name": "Đồng phục",
+    "recorder_id": 4,
+    "recorder_name": "Lê Quang Vinh",
+    "note": "Không thắt cà vạt",
+    "created_at": "2026-03-02T07:15:00Z"
+  }
+]

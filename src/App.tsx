@@ -30,6 +30,14 @@ import {
 import { cn } from './lib/utils';
 import { User, Class, Student, Rule, ConductRecord } from './types';
 
+// Import local data
+import classesData from './data/classes.json';
+import studentsData from './data/students.json';
+import rulesData from './data/rules.json';
+import categoriesData from './data/rule-categories.json';
+import historyData from './data/conduct-history.json';
+import notificationsData from './data/notifications.json';
+
 // Mock current user for demo
 const CURRENT_USER: User = {
   id: 2,
@@ -41,16 +49,29 @@ const CURRENT_USER: User = {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'students' | 'student-detail' | 'record' | 'conduct' | 'stats' | 'settings'>('dashboard');
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [rules, setRules] = useState<Rule[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [history, setHistory] = useState<ConductRecord[]>([]);
-  const [statsViolations, setStatsViolations] = useState<any[]>([]);
-  const [statsPoints, setStatsPoints] = useState<any[]>([]);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [classes, setClasses] = useState<Class[]>(classesData as Class[]);
+  const [students, setStudents] = useState<Student[]>(studentsData as Student[]);
+  const [rules, setRules] = useState<Rule[]>(rulesData as Rule[]);
+  const [categories, setCategories] = useState<any[]>(categoriesData);
+  const [history, setHistory] = useState<ConductRecord[]>(historyData as ConductRecord[]);
+  const [notifications, setNotifications] = useState<any[]>(notificationsData);
   const [summaryStats, setSummaryStats] = useState<any>({ students: 0, classes: 0, violations: 0, merits: 0 });
   const [studentCategoryStats, setStudentCategoryStats] = useState<any[]>([]);
+
+  // Derived stats
+  useEffect(() => {
+    const totalStudents = students.length;
+    const totalClasses = classes.length;
+    const totalViolations = history.filter(h => h.points < 0).length;
+    const totalMerits = history.filter(h => h.points > 0).length;
+    
+    setSummaryStats({
+      students: totalStudents,
+      classes: totalClasses,
+      violations: totalViolations,
+      merits: totalMerits
+    });
+  }, [students, classes, history]);
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,70 +144,59 @@ export default function App() {
   const [studentHistory, setStudentHistory] = useState<ConductRecord[]>([]);
 
   useEffect(() => {
-    fetchData();
+    // fetchData is no longer needed as we use local state
   }, []);
 
   const fetchData = async () => {
-    try {
-      const [clsRes, stuRes, ruleRes, catRes, histRes, violRes, ptsRes, notifRes, sumRes] = await Promise.all([
-        fetch('/api/classes'),
-        fetch('/api/students'),
-        fetch('/api/rules'),
-        fetch('/api/rule-categories'),
-        fetch('/api/conduct/history'),
-        fetch('/api/stats/violations'),
-        fetch('/api/stats/points-by-class'),
-        fetch('/api/notifications'),
-        fetch('/api/stats/summary')
-      ]);
-
-      setClasses(await clsRes.json());
-      setStudents(await stuRes.json());
-      setRules(await ruleRes.json());
-      setCategories(await catRes.json());
-      setHistory(await histRes.json());
-      setStatsViolations(await violRes.json());
-      setStatsPoints(await ptsRes.json());
-      setNotifications(await notifRes.json());
-      setSummaryStats(await sumRes.json());
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
+    // No-op or refresh derived data if needed
   };
 
-  const handleSubmitConduct = async (e: React.FormEvent) => {
+  const handleSubmitConduct = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStudent || !selectedRule) return;
 
     setIsSubmitting(true);
-    try {
-      const url = editingConductRecord ? `/api/conduct/${editingConductRecord.id}` : '/api/conduct';
-      const method = editingConductRecord ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentId: selectedStudent,
-          ruleId: selectedRule,
-          recorderId: CURRENT_USER.id,
-          note
-        })
-      });
-
-      if (res.ok) {
-        setNote('');
-        setSelectedStudent(null);
-        setSelectedRule(null);
-        setEditingConductRecord(null);
-        fetchData();
-        alert(editingConductRecord ? 'Cập nhật thành công!' : 'Ghi nhận thành công!');
-      }
-    } catch (error) {
-      console.error('Error submitting conduct:', error);
-    } finally {
-      setIsSubmitting(false);
+    
+    const student = students.find(s => s.id === selectedStudent);
+    const rule = rules.find(r => r.id === selectedRule);
+    
+    if (editingConductRecord) {
+      setHistory(prev => prev.map(h => h.id === editingConductRecord.id ? {
+        ...h,
+        student_id: selectedStudent,
+        student_name: student?.full_name || '',
+        rule_id: selectedRule,
+        rule_code: rule?.code || '',
+        rule_description: rule?.description || '',
+        points: rule?.points || 0,
+        severity: rule?.severity || 'Nhẹ',
+        note
+      } : h));
+    } else {
+      const newRecord: ConductRecord = {
+        id: Date.now(),
+        student_id: selectedStudent,
+        student_name: student?.full_name || '',
+        rule_id: selectedRule,
+        rule_code: rule?.code || '',
+        rule_description: rule?.description || '',
+        points: rule?.points || 0,
+        severity: rule?.severity || 'Nhẹ',
+        category_name: rule?.category_name || '',
+        recorder_id: CURRENT_USER.id,
+        recorder_name: CURRENT_USER.full_name,
+        note,
+        created_at: new Date().toISOString()
+      };
+      setHistory(prev => [newRecord, ...prev]);
     }
+
+    setNote('');
+    setSelectedStudent(null);
+    setSelectedRule(null);
+    setEditingConductRecord(null);
+    setIsSubmitting(false);
+    alert(editingConductRecord ? 'Cập nhật thành công!' : 'Ghi nhận thành công!');
   };
 
   const handleEditConduct = (record: ConductRecord) => {
@@ -194,54 +204,49 @@ export default function App() {
     setSelectedStudent(record.student_id);
     setSelectedRule(record.rule_id);
     setNote(record.note);
-    // Scroll to form
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDeleteConduct = async (id: number) => {
+  const handleDeleteConduct = (id: number) => {
     if (!confirm('Bạn có chắc chắn muốn xóa ghi nhận này?')) return;
-    try {
-      const res = await fetch(`/api/conduct/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        fetchData();
-      }
-    } catch (error) {
-      console.error('Error deleting conduct record:', error);
-    }
+    setHistory(prev => prev.filter(h => h.id !== id));
   };
 
-  const handleAddRule = async (e: React.FormEvent) => {
+  const handleAddRule = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRuleCat || !newRuleDesc || !newRuleCode) return;
 
-    try {
-      const url = editingRule ? `/api/rules/${editingRule.id}` : '/api/rules';
-      const method = editingRule ? 'PUT' : 'POST';
-      
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          category_id: newRuleCat,
-          code: newRuleCode,
-          description: newRuleDesc,
-          points: newRulePoints,
-          severity: newRuleSeverity
-        })
-      });
+    const category = categories.find(c => c.id === newRuleCat);
 
-      if (res.ok) {
-        setNewRuleCode('');
-        setNewRuleDesc('');
-        setNewRulePoints(0);
-        setNewRuleCat(null);
-        setNewRuleSeverity('Nhẹ');
-        setEditingRule(null);
-        fetchData();
-      }
-    } catch (error) {
-      console.error('Error saving rule:', error);
+    if (editingRule) {
+      setRules(prev => prev.map(r => r.id === editingRule.id ? {
+        ...r,
+        category_id: newRuleCat,
+        category_name: category?.name || '',
+        code: newRuleCode,
+        description: newRuleDesc,
+        points: newRulePoints,
+        severity: newRuleSeverity
+      } : r));
+    } else {
+      const newRule: Rule = {
+        id: Date.now(),
+        category_id: newRuleCat,
+        category_name: category?.name || '',
+        code: newRuleCode,
+        description: newRuleDesc,
+        points: newRulePoints,
+        severity: newRuleSeverity
+      };
+      setRules(prev => [...prev, newRule]);
     }
+
+    setNewRuleCode('');
+    setNewRuleDesc('');
+    setNewRulePoints(0);
+    setNewRuleCat(null);
+    setNewRuleSeverity('Nhẹ');
+    setEditingRule(null);
   };
 
   const handleEditRule = (rule: Rule) => {
@@ -251,72 +256,59 @@ export default function App() {
     setNewRulePoints(rule.points);
     setNewRuleCat(rule.category_id);
     setNewRuleSeverity(rule.severity);
-    // Scroll to form
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDeleteRule = async (id: number) => {
+  const handleDeleteRule = (id: number) => {
     if (!confirm('Bạn có chắc chắn muốn xóa nội quy này?')) return;
-    try {
-      const res = await fetch(`/api/rules/${id}`, { method: 'DELETE' });
-      if (res.ok) fetchData();
-    } catch (error) {
-      console.error('Error deleting rule:', error);
-    }
+    setRules(prev => prev.filter(r => r.id !== id));
   };
 
-  const handleAddCategory = async (e: React.FormEvent) => {
+  const handleAddCategory = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName) return;
 
-    try {
-      const url = editingCat ? `/api/rule-categories/${editingCat.id}` : '/api/rule-categories';
-      const method = editingCat ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newCatName })
-      });
-
-      if (res.ok) {
-        setNewCatName('');
-        setEditingCat(null);
-        fetchData();
-      }
-    } catch (error) {
-      console.error('Error saving category:', error);
+    if (editingCat) {
+      setCategories(prev => prev.map(c => c.id === editingCat.id ? { ...c, name: newCatName } : c));
+    } else {
+      const newCat = { id: Date.now(), name: newCatName };
+      setCategories(prev => [...prev, newCat]);
     }
+
+    setNewCatName('');
+    setEditingCat(null);
   };
 
-  const handleDeleteCategory = async (id: number) => {
+  const handleDeleteCategory = (id: number) => {
     if (!confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return;
-    try {
-      const res = await fetch(`/api/rule-categories/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        fetchData();
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Lỗi khi xóa danh mục');
-      }
-    } catch (error) {
-      console.error('Error deleting category:', error);
+    const count = rules.filter(r => r.category_id === id).length;
+    if (count > 0) {
+      alert('Không thể xóa danh mục đang có nội quy');
+      return;
     }
+    setCategories(prev => prev.filter(c => c.id !== id));
   };
 
-  const handleViewStudent = async (student: Student) => {
+  const handleViewStudent = (student: Student) => {
     setViewingStudent(student);
-    try {
-      const [histRes, catRes] = await Promise.all([
-        fetch(`/api/conduct/history?studentId=${student.id}`),
-        fetch(`/api/stats/points-by-category?studentId=${student.id}`)
-      ]);
-      setStudentHistory(await histRes.json());
-      setStudentCategoryStats(await catRes.json());
-      setActiveTab('student-detail');
-    } catch (error) {
-      console.error('Error fetching student details:', error);
-    }
+    
+    // Filter history for this student
+    const studentHist = history.filter(h => h.student_id === student.id);
+    setStudentHistory(studentHist);
+    
+    // Calculate category stats for this student
+    const catStats = categories.map(cat => {
+      const totalPoints = studentHist
+        .filter(h => {
+          const rule = rules.find(r => r.id === h.rule_id);
+          return rule?.category_id === cat.id;
+        })
+        .reduce((acc, curr) => acc + curr.points, 0);
+      return { name: cat.name, total_points: totalPoints };
+    });
+    setStudentCategoryStats(catStats);
+    
+    setActiveTab('student-detail');
   };
 
   const COLORS = ['#10b981', '#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6'];
@@ -1356,14 +1348,14 @@ export default function App() {
                            <AlertCircle className="text-amber-600 shrink-0" size={20} />
                            <div>
                              <p className="text-sm font-bold text-amber-900">Cảnh báo vi phạm</p>
-                             <p className="text-xs text-amber-800">Lỗi "{statsViolations[0]?.description}" đang chiếm tỷ trọng cao nhất ({((statsViolations[0]?.count / (summaryStats.violations || 1)) * 100).toFixed(1)}%).</p>
+                             <p className="text-xs text-amber-800">Lỗi "{sortedViolations[0]?.description}" đang chiếm tỷ trọng cao nhất ({((Number(sortedViolations[0]?.count || 0) / (Number(summaryStats.violations) || 1)) * 100).toFixed(1)}%).</p>
                            </div>
                          </div>
                          <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex gap-3">
                            <CheckCircle2 className="text-emerald-600 shrink-0" size={20} />
                            <div>
                              <p className="text-sm font-bold text-emerald-900">Ghi nhận tích cực</p>
-                             <p className="text-xs text-emerald-800">Lớp {[...statsPoints].sort((a,b) => b.total_points - a.total_points)[0]?.name} đang có phong trào thi đua dẫn đầu.</p>
+                             <p className="text-xs text-emerald-800">Lớp {[...filteredStatsPoints].sort((a,b) => b.total_points - a.total_points)[0]?.name} đang có phong trào thi đua dẫn đầu.</p>
                            </div>
                          </div>
                          <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 flex gap-3">

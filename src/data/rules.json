@@ -1,0 +1,17 @@
+[
+  { "id": 1, "category_id": 1, "category_name": "Chuyên cần", "code": "CC01", "description": "Đi học muộn", "points": -5, "severity": "Nhẹ" },
+  { "id": 2, "category_id": 1, "category_name": "Chuyên cần", "code": "CC02", "description": "Nghỉ học không phép", "points": -10, "severity": "Trung bình" },
+  { "id": 3, "category_id": 1, "category_name": "Chuyên cần", "code": "CC03", "description": "Trốn tiết", "points": -15, "severity": "Nặng" },
+  { "id": 4, "category_id": 2, "category_name": "Đồng phục", "code": "DP01", "description": "Sai đồng phục", "points": -3, "severity": "Nhẹ" },
+  { "id": 5, "category_id": 2, "category_name": "Đồng phục", "code": "DP02", "description": "Không đeo thẻ học sinh", "points": -2, "severity": "Nhẹ" },
+  { "id": 6, "category_id": 2, "category_name": "Đồng phục", "code": "DP03", "description": "Nhuộm tóc/Sơn móng tay", "points": -5, "severity": "Nhẹ" },
+  { "id": 7, "category_id": 3, "category_name": "Học tập", "code": "HT01", "description": "Phát biểu xây dựng bài", "points": 2, "severity": "Khen thưởng" },
+  { "id": 8, "category_id": 3, "category_name": "Học tập", "code": "HT02", "description": "Đạt điểm cao trong kỳ thi", "points": 10, "severity": "Khen thưởng" },
+  { "id": 9, "category_id": 3, "category_name": "Học tập", "code": "HT03", "description": "Không làm bài tập", "points": -5, "severity": "Nhẹ" },
+  { "id": 10, "category_id": 3, "category_name": "Học tập", "code": "HT04", "description": "Quay cóp trong giờ kiểm tra", "points": -20, "severity": "Nặng" },
+  { "id": 11, "category_id": 4, "category_name": "Kỷ luật", "code": "KL01", "description": "Gây mất trật tự", "points": -5, "severity": "Nhẹ" },
+  { "id": 12, "category_id": 4, "category_name": "Kỷ luật", "code": "KL02", "description": "Sử dụng điện thoại trong giờ", "points": -5, "severity": "Trung bình" },
+  { "id": 13, "category_id": 4, "category_name": "Kỷ luật", "code": "KL03", "description": "Vô lễ với giáo viên", "points": -30, "severity": "Nặng" },
+  { "id": 14, "category_id": 5, "category_name": "Ngoại khóa", "code": "NK01", "description": "Tham gia tích cực phong trào", "points": 5, "severity": "Khen thưởng" },
+  { "id": 15, "category_id": 5, "category_name": "Ngoại khóa", "code": "NK02", "description": "Đạt giải thi đấu thể thao", "points": 15, "severity": "Khen thưởng" }
+]
